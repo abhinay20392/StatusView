@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="StatusView">
+        <attr name="statusImageRadius" format="dimension"/>
+        <attr name="statusItemIndicatorWidth" format="dimension"/>
+        <attr name="spaceBetweenImageAndIndicator" format="dimension"/>
+        <attr name="pendingIndicatorColor" format="color"/>
+        <attr name="visitedIndicatorColor" format="color"/>
+    </declare-styleable>
+    <declare-styleable name="StatusPlayerProgressView">
+        <attr name="progressBarHeight" format="dimension"/>
+        <attr name="gapBetweenProgressBar" format="dimension"/>
+        <attr name="progressBarPrimaryColor" format="color"/>
+        <attr name="progressBarSecondaryColor" format="color"/>
+        <attr name="singleStatusDisplayTime" format="integer"/>
+    </declare-styleable>
+</resources>
