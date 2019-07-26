@@ -1,8 +1,8 @@
 /*
  * *
- *  * Created by Abhinay Sharma(abhinay20392@gmail.com) on 26/7/19 8:14 AM
+ *  * Created by Abhinay Sharma(abhinay20392@gmail.com) on 26/7/19 7:55 PM
  *  * Copyright (c) 2019 . All rights reserved.
- *  * Last modified 26/7/19 7:24 AM
+ *  * Last modified 26/7/19 5:03 PM
  *
  */
 
@@ -156,9 +156,9 @@ public class StatusView extends View {
             drawable.draw(canvas);
         }*/
 
-        if (mIndicatorImageBitmap != null) {
+        /*if (mIndicatorImageBitmap != null) {
             canvas.drawBitmap(mIndicatorImageBitmap, null, mIndicatorImageRect, null);
-        }
+        }*/
     }
 
     private int getIndicatorColor(int index) {
@@ -182,7 +182,7 @@ public class StatusView extends View {
     private void loadFirstImageBitamp() {
         mIndicatorImageBitmap = ImageUtils.getBitmapFromVectorDrawable(mContext, statusImageUris.get(0).getImageUri());
         drawable = getResources().getDrawable(statusImageUris.get(0).getImageUri());
-        invalidate();
+        //invalidate();
     }
 
     private void calculateSweepAngle(int itemCounts) {

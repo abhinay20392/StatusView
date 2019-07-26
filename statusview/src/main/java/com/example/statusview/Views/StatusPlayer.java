@@ -1,30 +1,31 @@
 /*
  * *
- *  * Created by Abhinay Sharma(abhinay20392@gmail.com) on 26/7/19 8:14 AM
+ *  * Created by Abhinay Sharma(abhinay20392@gmail.com) on 26/7/19 7:55 PM
  *  * Copyright (c) 2019 . All rights reserved.
- *  * Last modified 26/7/19 6:44 AM
+ *  * Last modified 26/7/19 5:29 PM
  *
  */
 
 package com.example.statusview.Views;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.statusview.CustomViews.StatusPlayerProgressView;
-import com.example.statusview.CustomViews.StatusView;
 import com.example.statusview.Helpers.StatusPreference;
 import com.example.statusview.Modal.StatusModel;
 import com.example.statusview.R;
+import com.example.statusview.Utils.MeasureUtils;
 
 import java.util.ArrayList;
 
@@ -34,6 +35,8 @@ public class StatusPlayer extends AppCompatActivity implements StatusPlayerProgr
     public static final int TYPE_IMAGE = 1;
     public static final int TYPE_VIDEO = 2;
 
+    public static int CLICK_ACTION_THRESHOLD_L = 50;
+    public static int CLICK_ACTION_THRESHOLD_H = 200;
     StatusPlayerProgressView statusPlayerProgressView;
     ImageView imageView;
     TextView name;
@@ -41,21 +44,28 @@ public class StatusPlayer extends AppCompatActivity implements StatusPlayerProgr
     VideoView videoView;
     ArrayList<StatusModel> statusList;
     StatusPreference statusPreference;
+    private long startTime;
+    private long endTime;
+    private Context context;
+
+    private int currentIndex = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_status_player);
+        context = this;
         statusPlayerProgressView = findViewById(R.id.progressBarView);
         name = findViewById(R.id.statusUserName);
         time = findViewById(R.id.statusTime);
         videoView = findViewById(R.id.videoView);
-        statusPlayerProgressView.setSingleStatusDisplayTime(2000);
         imageView = findViewById(R.id.statusImage);
         statusPreference = new StatusPreference(this);
         Intent intent = getIntent();
         if (intent != null) {
             statusList = intent.getParcelableArrayListExtra(STATUS_IMAGE_KEY);
+            statusPlayerProgressView.setList(statusList);
+            statusPlayerProgressView.setSingleStatusDisplayTime(2000);
             initStatusProgressView();
         }
     }
@@ -79,17 +89,26 @@ public class StatusPlayer extends AppCompatActivity implements StatusPlayerProgr
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                int x = (int) motionEvent.getX();
-                int y = (int) motionEvent.getY();
 
-                Toast.makeText(StatusPlayer.this, "" + x, Toast.LENGTH_SHORT).show();
+                int x = (int) motionEvent.getX();
+
+                // Toast.makeText(StatusPlayer.this, "" + x + "/" + MeasureUtils.getScreenWidth(context), Toast.LENGTH_SHORT).show();
 
 
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    startTime = System.currentTimeMillis();
                     //pause
                     statusPlayerProgressView.pauseProgress();
                     return true;
                 } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    endTime = System.currentTimeMillis();
+                    if (isAClick(startTime, endTime)) {
+                        if (isClickedOnLeft(x)) {
+                            gotoPrevious();
+                        } else {
+                            gotoNext();
+                        }
+                    }
                     //resume
                     statusPlayerProgressView.resumeProgress();
                     return true;
@@ -98,6 +117,22 @@ public class StatusPlayer extends AppCompatActivity implements StatusPlayerProgr
                 }
             }
         });
+    }
+
+    private boolean isAClick(long startTime, long endTime) {
+        float difference = endTime - startTime;
+        //String k = "Start: " + startTime + " End: " + endTime + " Difference: " + difference;
+        //Log.d("***", "difference " + k);
+        return (difference > CLICK_ACTION_THRESHOLD_L && difference < CLICK_ACTION_THRESHOLD_H);
+    }
+
+    private boolean isClickedOnLeft(int x) {
+        int half = MeasureUtils.getScreenWidth(context) / 2;
+        if (x < half) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 
@@ -115,6 +150,10 @@ public class StatusPlayer extends AppCompatActivity implements StatusPlayerProgr
     }
 
     private void loadItem(int index) {
+        currentIndex = index;
+        if (videoView != null)
+            videoView.stopPlayback();
+
         StatusModel statusModel = statusList.get(index);
         if (statusModel.getType() == TYPE_IMAGE) {
             imageView.setImageDrawable(getResources().getDrawable(statusModel.getImageUri()));
@@ -122,13 +161,30 @@ public class StatusPlayer extends AppCompatActivity implements StatusPlayerProgr
             videoView.setVisibility(View.INVISIBLE);
 
         } else if (statusModel.getType() == TYPE_VIDEO) {
+            String path = "android.resource://" + getPackageName() + "/" + statusModel.getVideoName();
+            videoView.setVideoURI(Uri.parse(path));
+            videoView.start();
             videoView.setVisibility(View.VISIBLE);
             imageView.setVisibility(View.INVISIBLE);
         }
 
-       /* Glide.with(this)
-                .load(stories.get(index).imageUri)
-                .transition(DrawableTransitionOptions.withCrossFade(800))
-                .into(imageView);*/
+    }
+
+    private void gotoPrevious() {
+        //statusPlayerProgressView.endCurrent();
+        if (currentIndex != 0)
+            statusPlayerProgressView.startAnimating(currentIndex - 1);
+        else {
+            statusPlayerProgressView.startAnimating(0);
+        }
+        // statusPlayerProgressView.startCurrent();
+    }
+
+    private void gotoNext() {
+        /*if (currentIndex != statusList.size() - 1)
+            statusPlayerProgressView.startAnimating(currentIndex + 1);
+        else
+            finish();*/
+        statusPlayerProgressView.finishAnimation();
     }
 }

@@ -1,8 +1,8 @@
 /*
  * *
- *  * Created by Abhinay Sharma(abhinay20392@gmail.com) on 26/7/19 8:14 AM
+ *  * Created by Abhinay Sharma(abhinay20392@gmail.com) on 26/7/19 7:55 PM
  *  * Copyright (c) 2019 . All rights reserved.
- *  * Last modified 26/7/19 6:41 AM
+ *  * Last modified 26/7/19 5:29 PM
  *
  */
 
@@ -23,7 +23,10 @@ import android.view.View;
 
 import androidx.annotation.Nullable;
 
+import com.example.statusview.Modal.StatusModel;
 import com.example.statusview.R;
+
+import java.util.ArrayList;
 
 public class StatusPlayerProgressView extends View {
     public static final int PROGRESS_BAR_HEIGHT = 2;
@@ -31,6 +34,7 @@ public class StatusPlayerProgressView extends View {
     public static final int SINGLE_STATUS_DISPLAY_TIME = 1000;
     public static final String PROGRESS_PRIMARY_COLOR = "#009988";
     public static final String PROGRESS_SECONDARY_COLOR = "#EEEEEE";
+    ArrayList<StatusModel> statusList = new ArrayList<>();
     private int mScreenWidth;
     private int mProgressHeight;
     private int mGapBetweenProgressBars;
@@ -48,6 +52,7 @@ public class StatusPlayerProgressView extends View {
     private long singleStatusDisplayTime;
     private ValueAnimator progressAnimator;
     private boolean isCancelled;
+    private StatusPlayerListener statusPlayerListener;
 
     public StatusPlayerProgressView(Context context) {
         super(context);
@@ -85,6 +90,10 @@ public class StatusPlayerProgressView extends View {
         progressBarPrimaryColor = Color.parseColor(PROGRESS_PRIMARY_COLOR);
         progressBarSecondaryColor = Color.parseColor(PROGRESS_SECONDARY_COLOR);
         singleStatusDisplayTime = SINGLE_STATUS_DISPLAY_TIME;
+    }
+
+    public void setList(ArrayList<StatusModel> statusList) {
+        this.statusList = statusList;
     }
 
     private void prepareValues() {
@@ -155,6 +164,20 @@ public class StatusPlayerProgressView extends View {
         }
     }
 
+    public void finishAnimation() {
+        if (progressAnimator != null) {
+            progressAnimator.end();
+            isCancelled = false;
+        }
+    }
+
+    public void endCurrent() {
+        if (progressAnimator != null) {
+            progressAnimator.end();
+            isCancelled = false;
+        }
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -182,7 +205,7 @@ public class StatusPlayerProgressView extends View {
         setMeasuredDimension(w, h);
     }
 
-    private void startAnimating(final int index) {
+    public void startAnimating(final int index) {
         if (index >= progressBarsCount) {
             if (statusPlayerListener != null) {
                 statusPlayerListener.onFinishedPlaying();
@@ -190,7 +213,7 @@ public class StatusPlayerProgressView extends View {
             }
         }
         progressAnimator = ValueAnimator.ofInt(0, singleProgressBarWidth);
-        progressAnimator.setDuration(singleStatusDisplayTime);
+        progressAnimator.setDuration(statusList.get(index).getDuration());
         progressAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
@@ -232,8 +255,6 @@ public class StatusPlayerProgressView extends View {
     private void calculateWidthOfEachProgressBar(int progressBarsCount) {
         this.singleProgressBarWidth = (mScreenWidth - (progressBarsCount + 1) * mGapBetweenProgressBars) / progressBarsCount;
     }
-
-    private StatusPlayerListener statusPlayerListener;
 
     public void setStatusPlayerListener(StatusPlayerListener statusPlayerListener) {
         this.statusPlayerListener = statusPlayerListener;
