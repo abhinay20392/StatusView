@@ -1,3 +1,11 @@
+/*
+ * *
+ *  * Created by Abhinay Sharma(abhinay20392@gmail.com) on 26/7/19 8:14 AM
+ *  * Copyright (c) 2019 . All rights reserved.
+ *  * Last modified 26/7/19 7:24 AM
+ *
+ */
+
 package com.example.statusview.CustomViews;
 
 import android.content.Context;
@@ -5,36 +13,37 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.Nullable;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.example.statusview.Helpers.StatusPreference;
 import com.example.statusview.Modal.StatusModel;
 import com.example.statusview.R;
+import com.example.statusview.Utils.ImageUtils;
 import com.example.statusview.Views.StatusPlayer;
 
 import java.util.ArrayList;
 
-public class StatusView  extends View {
+public class StatusView extends View {
     public static final int STATUS_IMAGE_RADIUS_IN_DP = 36;
     public static final int STATUS_INDICATOR_WIDTH_IN_DP = 4;
     public static final int STATUS_BETWEEN_IMAGE_AND_INDICATOR = 4;
     public static final int START_ANGLE = 270;
-    public static int ANGEL_OF_GAP = 15;
     public static final String PENDING_INDICATOR_COLOR = "#009988";
     public static final String VISITED_INDICATOR_COLOR = "#33009988";
+    public static int ANGEL_OF_GAP = 15;
+    StatusPreference statusPreference;
     private int mStatusImageRadiusInPx;
     private int mStatusIndicatorWidthInPx;
     private int mSpaceBetweenImageAndIndicator;
@@ -45,6 +54,7 @@ public class StatusView  extends View {
     private int mIndicatoryOffset;
     private int mIndicatorImageOffset;
     private Resources resources;
+    private Drawable drawable;
     private ArrayList<StatusModel> statusImageUris;
     private Paint mIndicatorPaint;
     private int indicatorCount;
@@ -52,7 +62,6 @@ public class StatusView  extends View {
     private Bitmap mIndicatorImageBitmap;
     private Rect mIndicatorImageRect;
     private Context mContext;
-    StatusPreference statusPreference;
 
     public StatusView(Context context) {
         super(context);
@@ -104,7 +113,7 @@ public class StatusView  extends View {
         mIndicatorImageRect = new Rect(mIndicatorImageOffset, mIndicatorImageOffset, mViewWidth - mIndicatorImageOffset, mViewHeight - mIndicatorImageOffset);
     }
 
-    public void resetStatusVisits(){
+    public void resetStatusVisits() {
         statusPreference.clearStatusPreferences();
     }
 
@@ -127,7 +136,7 @@ public class StatusView  extends View {
 
     private void navigateToStatusPlayerPage() {
         Intent intent = new Intent(mContext, StatusPlayer.class);
-        intent.putParcelableArrayListExtra(StatusPlayer.STATUS_IMAGE_KEY,statusImageUris);
+        intent.putParcelableArrayListExtra(StatusPlayer.STATUS_IMAGE_KEY, statusImageUris);
         mContext.startActivity(intent);
     }
 
@@ -142,13 +151,18 @@ public class StatusView  extends View {
             canvas.drawArc(mIndicatoryOffset, mIndicatoryOffset, mViewWidth - mIndicatoryOffset, mViewHeight - mIndicatoryOffset, startAngle, indicatorSweepAngle - ANGEL_OF_GAP / 2, false, mIndicatorPaint);
             startAngle += indicatorSweepAngle + ANGEL_OF_GAP / 2;
         }
+       /* if (drawable != null) {
+            Log.d("***", "Drawable: " + drawable);
+            drawable.draw(canvas);
+        }*/
+
         if (mIndicatorImageBitmap != null) {
             canvas.drawBitmap(mIndicatorImageBitmap, null, mIndicatorImageRect, null);
         }
     }
 
     private int getIndicatorColor(int index) {
-        return statusPreference.isStatusVisited(statusImageUris.get(index).imageUri) ? mVisistedIndicatorColor : mPendingIndicatorColor;
+        return statusPreference.isStatusVisited(statusImageUris.get(index).getImageUri()) ? mVisistedIndicatorColor : mPendingIndicatorColor;
     }
 
     @Override
@@ -160,20 +174,15 @@ public class StatusView  extends View {
         setMeasuredDimension(w, h);
     }
 
+    public void setImage(Drawable drawable) {
+        this.drawable = drawable;
+        invalidate();
+    }
+
     private void loadFirstImageBitamp() {
-        RequestOptions options = new RequestOptions();
-        options.circleCrop();
-        Glide.with(this)
-                .asBitmap()
-                .apply(options)
-                .load(statusImageUris.get(0).imageUri)
-                .into(new SimpleTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
-                        mIndicatorImageBitmap = resource;
-                        invalidate();
-                    }
-                });
+        mIndicatorImageBitmap = ImageUtils.getBitmapFromVectorDrawable(mContext, statusImageUris.get(0).getImageUri());
+        drawable = getResources().getDrawable(statusImageUris.get(0).getImageUri());
+        invalidate();
     }
 
     private void calculateSweepAngle(int itemCounts) {

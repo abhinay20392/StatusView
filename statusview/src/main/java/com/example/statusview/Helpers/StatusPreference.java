@@ -1,3 +1,11 @@
+/*
+ * *
+ *  * Created by Abhinay Sharma(abhinay20392@gmail.com) on 26/7/19 8:14 AM
+ *  * Copyright (c) 2019 . All rights reserved.
+ *  * Last modified 26/7/19 6:41 AM
+ *
+ */
+
 package com.example.statusview.Helpers;
 
 import android.content.Context;
@@ -20,12 +28,12 @@ public class StatusPreference {
         editor.apply();
     }
 
-    public void setStatusVisited(String uri) {
-        editor.putBoolean(uri, true);
+    public void setStatusVisited(int uri) {
+        editor.putBoolean(String.valueOf(uri), true);
         editor.apply();
     }
 
-    public boolean isStatusVisited(String uri) {
-        return preferences.getBoolean(uri, false);
+    public boolean isStatusVisited(int uri) {
+        return preferences.getBoolean(String.valueOf(uri), false);
     }
 }

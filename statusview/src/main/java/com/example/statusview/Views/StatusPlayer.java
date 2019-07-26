@@ -1,17 +1,27 @@
+/*
+ * *
+ *  * Created by Abhinay Sharma(abhinay20392@gmail.com) on 26/7/19 8:14 AM
+ *  * Copyright (c) 2019 . All rights reserved.
+ *  * Last modified 26/7/19 6:44 AM
+ *
+ */
+
 package com.example.statusview.Views;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.VideoView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.statusview.CustomViews.StatusPlayerProgressView;
+import com.example.statusview.CustomViews.StatusView;
 import com.example.statusview.Helpers.StatusPreference;
 import com.example.statusview.Modal.StatusModel;
 import com.example.statusview.R;
@@ -20,11 +30,16 @@ import java.util.ArrayList;
 
 public class StatusPlayer extends AppCompatActivity implements StatusPlayerProgressView.StatusPlayerListener {
     public static final String STATUS_IMAGE_KEY = "statusImages";
+
+    public static final int TYPE_IMAGE = 1;
+    public static final int TYPE_VIDEO = 2;
+
     StatusPlayerProgressView statusPlayerProgressView;
     ImageView imageView;
     TextView name;
     TextView time;
-    ArrayList<StatusModel> stories;
+    VideoView videoView;
+    ArrayList<StatusModel> statusList;
     StatusPreference statusPreference;
 
     @Override
@@ -34,12 +49,13 @@ public class StatusPlayer extends AppCompatActivity implements StatusPlayerProgr
         statusPlayerProgressView = findViewById(R.id.progressBarView);
         name = findViewById(R.id.statusUserName);
         time = findViewById(R.id.statusTime);
+        videoView = findViewById(R.id.videoView);
         statusPlayerProgressView.setSingleStatusDisplayTime(2000);
         imageView = findViewById(R.id.statusImage);
         statusPreference = new StatusPreference(this);
         Intent intent = getIntent();
         if (intent != null) {
-            stories = intent.getParcelableArrayListExtra(STATUS_IMAGE_KEY);
+            statusList = intent.getParcelableArrayListExtra(STATUS_IMAGE_KEY);
             initStatusProgressView();
         }
     }
@@ -51,17 +67,24 @@ public class StatusPlayer extends AppCompatActivity implements StatusPlayerProgr
     }
 
     private void initStatusProgressView() {
-        if (stories != null && stories.size() > 0) {
+        if (statusList != null && statusList.size() > 0) {
             statusPlayerProgressView.setStatusPlayerListener(this);
-            statusPlayerProgressView.setProgressBarsCount(stories.size());
+            statusPlayerProgressView.setProgressBarsCount(statusList.size());
             setTouchListener();
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void setTouchListener() {
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
+                int x = (int) motionEvent.getX();
+                int y = (int) motionEvent.getY();
+
+                Toast.makeText(StatusPlayer.this, "" + x, Toast.LENGTH_SHORT).show();
+
+
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                     //pause
                     statusPlayerProgressView.pauseProgress();
@@ -70,7 +93,7 @@ public class StatusPlayer extends AppCompatActivity implements StatusPlayerProgr
                     //resume
                     statusPlayerProgressView.resumeProgress();
                     return true;
-                }else {
+                } else {
                     return false;
                 }
             }
@@ -80,10 +103,10 @@ public class StatusPlayer extends AppCompatActivity implements StatusPlayerProgr
 
     @Override
     public void onStartedPlaying(int index) {
-        loadImage(index);
-        name.setText(stories.get(index).name);
-        time.setText(stories.get(index).time);
-        statusPreference.setStatusVisited(stories.get(index).imageUri);
+        loadItem(index);
+        name.setText(statusList.get(index).getName());
+        time.setText(statusList.get(index).getTime());
+        statusPreference.setStatusVisited(statusList.get(index).getImageUri());
     }
 
     @Override
@@ -91,10 +114,21 @@ public class StatusPlayer extends AppCompatActivity implements StatusPlayerProgr
         finish();
     }
 
-    private void loadImage(int index) {
-        Glide.with(this)
+    private void loadItem(int index) {
+        StatusModel statusModel = statusList.get(index);
+        if (statusModel.getType() == TYPE_IMAGE) {
+            imageView.setImageDrawable(getResources().getDrawable(statusModel.getImageUri()));
+            imageView.setVisibility(View.VISIBLE);
+            videoView.setVisibility(View.INVISIBLE);
+
+        } else if (statusModel.getType() == TYPE_VIDEO) {
+            videoView.setVisibility(View.VISIBLE);
+            imageView.setVisibility(View.INVISIBLE);
+        }
+
+       /* Glide.with(this)
                 .load(stories.get(index).imageUri)
                 .transition(DrawableTransitionOptions.withCrossFade(800))
-                .into(imageView);
+                .into(imageView);*/
     }
 }

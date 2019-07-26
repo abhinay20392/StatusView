@@ -1,3 +1,11 @@
+/*
+ * *
+ *  * Created by Abhinay Sharma(abhinay20392@gmail.com) on 26/7/19 8:14 AM
+ *  * Copyright (c) 2019 . All rights reserved.
+ *  * Last modified 26/7/19 6:41 AM
+ *
+ */
+
 package com.example.statusview.CustomViews;
 
 import android.animation.Animator;

@@ -1,24 +1,42 @@
+/*
+ * *
+ *  * Created by Abhinay Sharma(abhinay20392@gmail.com) on 26/7/19 8:14 AM
+ *  * Copyright (c) 2019 . All rights reserved.
+ *  * Last modified 26/7/19 6:41 AM
+ *
+ */
+
 package com.example.statusview.Modal;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
 public class StatusModel implements Parcelable {
-    public String imageUri;
-    public String name;
-    public String time;
+    private int imageUri;
+    private String name;
+    private String time;
+    private int type;
 
-    public StatusModel(String imageUri, String name, String time) {
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public StatusModel(int imageUri, String name, String time, int type) {
         this.imageUri = imageUri;
         this.name = name;
         this.time = time;
+        this.type = type;
     }
 
-    public String getImageUri() {
+    public int getImageUri() {
         return imageUri;
     }
 
-    public void setImageUri(String imageUri) {
+    public void setImageUri(int imageUri) {
         this.imageUri = imageUri;
     }
 
@@ -43,9 +61,10 @@ public class StatusModel implements Parcelable {
     }
 
     protected StatusModel(Parcel in) {
-        imageUri = in.readString();
+        imageUri = in.readInt();
         name = in.readString();
         time = in.readString();
+        type = in.readInt();
     }
 
     @Override
@@ -55,9 +74,10 @@ public class StatusModel implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(imageUri);
+        dest.writeInt(imageUri);
         dest.writeString(name);
         dest.writeString(time);
+        dest.writeInt(type);
     }
 
     @SuppressWarnings("unused")

@@ -1,8 +1,16 @@
+/*
+ * *
+ *  * Created by Abhinay Sharma(abhinay20392@gmail.com) on 26/7/19 8:14 AM
+ *  * Copyright (c) 2019 . All rights reserved.
+ *  * Last modified 26/7/19 7:24 AM
+ *
+ */
+
 package com.example.statusviewexample;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.statusview.CustomViews.StatusView;
 import com.example.statusview.Modal.StatusModel;
@@ -18,10 +26,12 @@ public class MainActivity extends AppCompatActivity {
         StatusView statusView = findViewById(R.id.statusView);
         statusView.resetStatusVisits();
         ArrayList<StatusModel> uris = new ArrayList<>();
-        uris.add(new StatusModel("https://images.pexels.com/photos/87840/daisy-pollen-flower-nature-87840.jpeg?cs=srgb&dl=plant-flower-macro-87840.jpg&fm=jpg" , "Ankit Kumar","12:00 PM"));
-        uris.add(new StatusModel("https://bornrealist.com/wp-content/uploads/2017/11/Here-Are-Top-10-Cute-Animals-That-Might-Actually-Kill-You.jpg" ,"Panda Man","01:00 AM"));
-        uris.add(new StatusModel("https://www.planwallpaper.com/static/images/animals-4.jpg","Steve","Yesterday"));
-        uris.add(new StatusModel("https://static.boredpanda.com/blog/wp-content/uuuploads/albino-animals/albino-animals-3.jpg","Grambon","10:15 PM"));
+        uris.add(new StatusModel(R.drawable.ic_android_black_24dp, "Agent Black", "12:00 PM", 1));
+        uris.add(new StatusModel(R.drawable.ic_android_blue_24dp, "Agent Blue", "01:00 PM", 1));
+        uris.add(new StatusModel(R.drawable.ic_android_green_24dp, "Agent Green", "02:00 PM", 1));
+        uris.add(new StatusModel(R.drawable.ic_android_red_24dp, "Agent Red", "03:00 PM", 1));
+        uris.add(new StatusModel(R.drawable.ic_android_yellow_24dp, "Agent Yellow", "04:00 PM", 1));
         statusView.setImageUris(uris);
+        //statusView.setImage(getResources().getDrawable(R.drawable.sbpd));
     }
 }
